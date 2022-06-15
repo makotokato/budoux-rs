@@ -95,31 +95,21 @@ impl Parser {
     }
 
     pub fn parse(&self, sentence: &str) -> Vec<usize> {
-        let sentence = sentence.to_string();
         let mut p1 = 'U';
         let mut p2 = 'U';
         let mut p3 = 'U';
-        let mut i = 0;
         let mut chunks = Vec::new();
         let mut utf8_offset = 0;
 
+        let mut current = sentence.chars();
         let mut w1 = char::REPLACEMENT_CHARACTER;
         let mut w2 = char::REPLACEMENT_CHARACTER;
         let mut w3 = char::REPLACEMENT_CHARACTER;
-        let mut w4 = sentence
-            .chars()
-            .next()
-            .unwrap_or(char::REPLACEMENT_CHARACTER);
-        let mut w5 = sentence
-            .chars()
-            .nth(1)
-            .unwrap_or(char::REPLACEMENT_CHARACTER);
+        let mut w4 = current.next().unwrap_or(char::REPLACEMENT_CHARACTER);
+        let mut w5 = current.next().unwrap_or(char::REPLACEMENT_CHARACTER);
 
-        while i < sentence.chars().count() {
-            let w6 = sentence
-                .chars()
-                .nth(i + 2)
-                .unwrap_or(char::REPLACEMENT_CHARACTER);
+        while w4 != char::REPLACEMENT_CHARACTER {
+            let w6 = current.next().unwrap_or(char::REPLACEMENT_CHARACTER);
             let feature = get_feature(w1, w2, w3, w4, w5, w6, p1, p2, p3);
             let mut score = 0;
 
@@ -139,11 +129,10 @@ impl Parser {
             w3 = w4;
             w4 = w5;
             w5 = w6;
-            let p = if score > 0 { 'B' } else { 'O' };
             p1 = p2;
             p2 = p3;
+            let p = if score > 0 { 'B' } else { 'O' };
             p3 = p;
-            i += 1;
         }
 
         chunks
