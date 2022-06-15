@@ -39,49 +39,50 @@ pub fn get_feature(
     let b5 = get_unicode_block_index(w5);
     let b6 = get_unicode_block_index(w6);
 
-    let mut raw_feature = BTreeMap::new();
-    raw_feature.insert("UP1", p1.to_string());
-    raw_feature.insert("UP2", p2.to_string());
-    raw_feature.insert("UP3", p3.to_string());
-    raw_feature.insert("BP1", p1.to_string() + &p2.to_string());
-    raw_feature.insert("BP2", p2.to_string() + &p3.to_string());
-    raw_feature.insert("UW1", w1.to_string());
-    raw_feature.insert("UW2", w2.to_string());
-    raw_feature.insert("UW3", w3.to_string());
-    raw_feature.insert("UW4", w3.to_string());
-    raw_feature.insert("UW5", w5.to_string());
-    raw_feature.insert("UW6", w6.to_string());
-    raw_feature.insert("BW1", w2.to_string() + &w3.to_string());
-    raw_feature.insert("BW2", w3.to_string() + &w4.to_string());
-    raw_feature.insert("BW3", w4.to_string() + &w5.to_string());
-    raw_feature.insert("TW1", w1.to_string() + &w2.to_string() + &w3.to_string());
-    raw_feature.insert("TW2", w2.to_string() + &w3.to_string() + &w4.to_string());
-    raw_feature.insert("TW3", w3.to_string() + &w4.to_string() + &w5.to_string());
-    raw_feature.insert("TW4", w4.to_string() + &w5.to_string() + &w6.to_string());
-    raw_feature.insert("UB1", b1.to_string());
-    raw_feature.insert("UB2", b2.to_string());
-    raw_feature.insert("UB3", b3.to_string());
-    raw_feature.insert("UB4", b4.to_string());
-    raw_feature.insert("UB5", b5.to_string());
-    raw_feature.insert("UB6", b6.to_string());
-    raw_feature.insert("BB1", b2.to_string() + &b3);
-    raw_feature.insert("BB2", b3.to_string() + &b4);
-    raw_feature.insert("BB3", b4.to_string() + &b5);
-    raw_feature.insert("TB1", b1.to_string() + &b2 + &b3);
-    raw_feature.insert("TB2", b2.to_string() + &b3 + &b4);
-    raw_feature.insert("TB3", b3.to_string() + &b4 + &b5);
-    raw_feature.insert("TB4", b4.to_string() + &b5 + &b6);
-    raw_feature.insert("UQ1", p1.to_string() + &b1);
-    raw_feature.insert("UQ2", p2.to_string() + &b2);
-    raw_feature.insert("UQ3", p3.to_string() + &b3);
-    raw_feature.insert("BQ1", p2.to_string() + &b2 + &b3);
-    raw_feature.insert("BQ2", p2.to_string() + &b3 + &b4);
-    raw_feature.insert("BQ3", p3.to_string() + &b2 + &b3);
-    raw_feature.insert("BQ4", p3.to_string() + &b3 + &b4);
-    raw_feature.insert("TQ1", p2.to_string() + &b1 + &b2 + &b3);
-    raw_feature.insert("TQ2", p2.to_string() + &b2 + &b3 + &b4);
-    raw_feature.insert("TQ3", p3.to_string() + &b1 + &b2 + &b3);
-    raw_feature.insert("TQ4", p3.to_string() + &b2 + &b3 + &b4);
+    let mut raw_feature = BTreeMap::from([
+        ("UP1", p1.to_string()),
+        ("UP2", p2.to_string()),
+        ("UP3", p3.to_string()),
+        ("BP1", p1.to_string() + &p2.to_string()),
+        ("BP2", p2.to_string() + &p3.to_string()),
+        ("UW1", w1.to_string()),
+        ("UW2", w2.to_string()),
+        ("UW3", w3.to_string()),
+        ("UW4", w4.to_string()),
+        ("UW5", w5.to_string()),
+        ("UW6", w6.to_string()),
+        ("BW1", w2.to_string() + &w3.to_string()),
+        ("BW2", w3.to_string() + &w4.to_string()),
+        ("BW3", w4.to_string() + &w5.to_string()),
+        ("TW1", w1.to_string() + &w2.to_string() + &w3.to_string()),
+        ("TW2", w2.to_string() + &w3.to_string() + &w4.to_string()),
+        ("TW3", w3.to_string() + &w4.to_string() + &w5.to_string()),
+        ("TW4", w4.to_string() + &w5.to_string() + &w6.to_string()),
+        ("UB1", b1.to_string()),
+        ("UB2", b2.to_string()),
+        ("UB3", b3.to_string()),
+        ("UB4", b4.to_string()),
+        ("UB5", b5.to_string()),
+        ("UB6", b6.to_string()),
+        ("BB1", b2.to_string() + &b3),
+        ("BB2", b3.to_string() + &b4),
+        ("BB3", b4.to_string() + &b5),
+        ("TB1", b1.to_string() + &b2 + &b3),
+        ("TB2", b2.to_string() + &b3 + &b4),
+        ("TB3", b3.to_string() + &b4 + &b5),
+        ("TB4", b4.to_string() + &b5 + &b6),
+        ("UQ1", p1.to_string() + &b1),
+        ("UQ2", p2.to_string() + &b2),
+        ("UQ3", p3.to_string() + &b3),
+        ("BQ1", p2.to_string() + &b2 + &b3),
+        ("BQ2", p2.to_string() + &b3 + &b4),
+        ("BQ3", p3.to_string() + &b2 + &b3),
+        ("BQ4", p3.to_string() + &b3 + &b4),
+        ("TQ1", p2.to_string() + &b1 + &b2 + &b3),
+        ("TQ2", p2.to_string() + &b2 + &b3 + &b4),
+        ("TQ3", p3.to_string() + &b1 + &b2 + &b3),
+        ("TQ4", p3.to_string() + &b2 + &b3 + &b4),
+    ]);
     raw_feature.retain(|_, v| !v.contains(char::REPLACEMENT_CHARACTER));
 
     let mut result = Vec::new();
@@ -133,6 +134,7 @@ pub fn parse(sentence: &String) -> Vec<String> {
             }
         }
         if score > thres {
+            // break oppotunity
             chunks.push(sentence.chars().nth(i).unwrap().to_string());
         } else {
             let last_str = chunks.pop().unwrap_or("".to_string());
