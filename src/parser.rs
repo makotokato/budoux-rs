@@ -94,7 +94,7 @@ impl Parser {
         Ok(Self { model })
     }
 
-    pub fn parse(self, sentence: &str) -> Vec<usize> {
+    pub fn parse(&self, sentence: &str) -> Vec<usize> {
         let sentence = sentence.to_string();
         let mut p1 = 'U';
         let mut p2 = 'U';
