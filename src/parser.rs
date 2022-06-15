@@ -5,8 +5,6 @@ use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use bisection;
 
-const MODELS: &[u8; 10213] = include_bytes!("../models/ja-knbc.json");
-
 fn get_unicode_block_index(input: char) -> String {
     if input == char::REPLACEMENT_CHARACTER {
         char::REPLACEMENT_CHARACTER.to_string()
@@ -16,12 +14,7 @@ fn get_unicode_block_index(input: char) -> String {
     }
 }
 
-#[allow(dead_code)]
-struct Parser {
-    model: serde_json::Map<String, serde_json::Value>,
-}
-
-pub fn get_feature(
+fn get_feature(
     w1: char,
     w2: char,
     w3: char,
@@ -39,7 +32,7 @@ pub fn get_feature(
     let b5 = get_unicode_block_index(w5);
     let b6 = get_unicode_block_index(w6);
 
-    let mut raw_feature = BTreeMap::from([
+    let raw_feature = BTreeMap::from([
         ("UP1", p1.to_string()),
         ("UP2", p2.to_string()),
         ("UP3", p3.to_string()),
@@ -83,81 +76,77 @@ pub fn get_feature(
         ("TQ3", p3.to_string() + &b1 + &b2 + &b3),
         ("TQ4", p3.to_string() + &b2 + &b3 + &b4),
     ]);
-    raw_feature.retain(|_, v| !v.contains(char::REPLACEMENT_CHARACTER));
-
-    let mut result = Vec::new();
-    for (key, value) in raw_feature.iter() {
-        result.push(format!("{}:{}", key, value));
-    }
-    result
+    raw_feature
+        .iter()
+        .filter(|(_, v)| !v.contains(char::REPLACEMENT_CHARACTER))
+        .map(|(k, v)| format!("{}:{}", k, v))
+        .collect()
 }
 
-pub fn parse(sentence: &String) -> Vec<String> {
-    let mut p1 = 'U';
-    let mut p2 = 'U';
-    let mut p3 = 'U';
-    let mut i = 0;
-    let thres = 1000;
-    let mut chunks = Vec::new();
-    //chunks.push(sentence.chars().nth(0).unwrap().to_string());
+pub struct Parser {
+    model: serde_json::Map<String, serde_json::Value>,
+}
 
-    let parsed: serde_json::Value = serde_json::from_slice(MODELS).expect("JSON syntax error");
-    let model: serde_json::Map<String, serde_json::Value> = parsed.as_object().unwrap().clone();
-    let mut w1 = char::REPLACEMENT_CHARACTER;
-    let mut w2 = char::REPLACEMENT_CHARACTER;
-    let mut w3 = char::REPLACEMENT_CHARACTER;
-    let mut w4 = sentence
-        .chars()
-        .nth(0)
-        .unwrap_or(char::REPLACEMENT_CHARACTER);
-    let mut w5 = sentence
-        .chars()
-        .nth(1)
-        .unwrap_or(char::REPLACEMENT_CHARACTER);
+impl Parser {
+    pub fn try_new_with_model(
+        model: serde_json::Map<String, serde_json::Value>,
+    ) -> Result<Self, &'static str> {
+        Ok(Self { model })
+    }
 
-    while i < sentence.chars().count() {
-        let w6 = sentence
+    pub fn parse(self, sentence: &str) -> Vec<usize> {
+        let sentence = sentence.to_string();
+        let mut p1 = 'U';
+        let mut p2 = 'U';
+        let mut p3 = 'U';
+        let mut i = 0;
+        let thres = 1000;
+        let mut chunks = Vec::new();
+        let mut utf8_offset = 0;
+
+        let mut w1 = char::REPLACEMENT_CHARACTER;
+        let mut w2 = char::REPLACEMENT_CHARACTER;
+        let mut w3 = char::REPLACEMENT_CHARACTER;
+        let mut w4 = sentence
             .chars()
-            .nth(i + 2)
+            .nth(0)
             .unwrap_or(char::REPLACEMENT_CHARACTER);
-        let feature = get_feature(w1, w2, w3, w4, w5, w6, p1, p2, p3);
-        w1 = w2;
-        w2 = w3;
-        w3 = w4;
-        w4 = w5;
-        w5 = w6;
-        let mut score = 0;
+        let mut w5 = sentence
+            .chars()
+            .nth(1)
+            .unwrap_or(char::REPLACEMENT_CHARACTER);
 
-        for f in feature.iter() {
-            if let Some(v) = model.get(f) {
-                score = score + v.as_i64().unwrap_or(0);
+        while i < sentence.chars().count() {
+            let w6 = sentence
+                .chars()
+                .nth(i + 2)
+                .unwrap_or(char::REPLACEMENT_CHARACTER);
+            let feature = get_feature(w1, w2, w3, w4, w5, w6, p1, p2, p3);
+            let mut score = 0;
+
+            for f in feature.iter() {
+                if let Some(v) = self.model.get(f) {
+                    score += v.as_i64().unwrap_or(0);
+                }
             }
+            if score > thres {
+                // break opportunity
+                chunks.push(utf8_offset);
+            }
+
+            utf8_offset += w4.len_utf8();
+            w1 = w2;
+            w2 = w3;
+            w3 = w4;
+            w4 = w5;
+            w5 = w6;
+            let p = if score > 0 { 'B' } else { 'O' };
+            p1 = p2;
+            p2 = p3;
+            p3 = p;
+            i += 1;
         }
-        if score > thres {
-            // break oppotunity
-            chunks.push(sentence.chars().nth(i).unwrap().to_string());
-        } else {
-            let last_str = chunks.pop().unwrap_or("".to_string());
-            chunks.push(last_str + &sentence.chars().nth(i).unwrap().to_string());
-        }
-        let p = if score > 0 { 'B' } else { 'O' };
-        p1 = p2;
-        p2 = p3;
-        p3 = p;
-        i = i + 1;
-    }
 
-    chunks
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn simple_test() {
-        let result = parse(&"今日は天気です。".to_string());
-        assert_eq!(result[0], "今日は");
-        assert_eq!(result[1], "天気です。");
+        chunks
     }
 }
