@@ -3,7 +3,7 @@ use alloc::collections::BTreeMap;
 use alloc::format;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
-use bisection;
+use serde_json::{Map, Value};
 
 fn get_unicode_block_index(input: char) -> String {
     if input == char::REPLACEMENT_CHARACTER {
@@ -14,6 +14,7 @@ fn get_unicode_block_index(input: char) -> String {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn get_feature(
     w1: char,
     w2: char,
@@ -84,14 +85,13 @@ fn get_feature(
 }
 
 pub struct Parser {
-    model: serde_json::Map<String, serde_json::Value>,
+    model: Map<String, Value>,
+    thres: i64,
 }
 
 impl Parser {
-    pub fn try_new_with_model(
-        model: serde_json::Map<String, serde_json::Value>,
-    ) -> Result<Self, &'static str> {
-        Ok(Self { model })
+    pub fn try_new_with_model(model: Map<String, Value>) -> Result<Self, &'static str> {
+        Ok(Self { model, thres: 1000 })
     }
 
     pub fn parse(&self, sentence: &str) -> Vec<usize> {
@@ -100,7 +100,6 @@ impl Parser {
         let mut p2 = 'U';
         let mut p3 = 'U';
         let mut i = 0;
-        let thres = 1000;
         let mut chunks = Vec::new();
         let mut utf8_offset = 0;
 
@@ -109,7 +108,7 @@ impl Parser {
         let mut w3 = char::REPLACEMENT_CHARACTER;
         let mut w4 = sentence
             .chars()
-            .nth(0)
+            .next()
             .unwrap_or(char::REPLACEMENT_CHARACTER);
         let mut w5 = sentence
             .chars()
@@ -129,7 +128,7 @@ impl Parser {
                     score += v.as_i64().unwrap_or(0);
                 }
             }
-            if score > thres {
+            if score > self.thres {
                 // break opportunity
                 chunks.push(utf8_offset);
             }
