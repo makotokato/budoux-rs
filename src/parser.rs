@@ -1,6 +1,9 @@
 use crate::unicode_block::UNICODE_BLOCK;
+use alloc::collections::BTreeMap;
+use alloc::format;
+use alloc::string::{String, ToString};
+use alloc::vec::Vec;
 use bisection;
-use std::collections::HashMap;
 
 const MODELS: &[u8; 10213] = include_bytes!("../models/ja-knbc.json");
 
@@ -36,7 +39,7 @@ pub fn get_feature(
     let b5 = get_unicode_block_index(w5);
     let b6 = get_unicode_block_index(w6);
 
-    let mut raw_feature = HashMap::new();
+    let mut raw_feature = BTreeMap::new();
     raw_feature.insert("UP1", p1.to_string());
     raw_feature.insert("UP2", p2.to_string());
     raw_feature.insert("UP3", p3.to_string());

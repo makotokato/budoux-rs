@@ -1,3 +1,7 @@
+#![cfg_attr(not(any(test)), no_std)]
+
+extern crate alloc;
+
 pub mod parser;
 mod unicode_block;
 

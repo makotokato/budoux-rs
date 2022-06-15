@@ -5,5 +5,5 @@ edition = "2021"
 
 [dependencies]
 bisection = "0.1.0"
-serde_json = { version = "1.0", default-features = false, features = ["std"] }
+serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 
