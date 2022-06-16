@@ -1,3 +1,4 @@
+use crate::defines;
 use crate::feature::*;
 use alloc::string::String;
 use core::str::Chars;
@@ -71,7 +72,11 @@ impl<'a> Iterator for BudoxSegmenterIterator<'a> {
             w5 = w6;
             p1 = p2;
             p2 = p3;
-            let p = if score > 0 { 'B' } else { 'O' };
+            let p = if score > 0 {
+                defines::POSITIVE
+            } else {
+                defines::NEGATIVE
+            };
             p3 = p;
             // w3 was current character
             self.utf8_offset += self.w3.len_utf8();
@@ -115,9 +120,9 @@ impl<'a> BudoxSegmenterIterator<'a> {
             w3: char::REPLACEMENT_CHARACTER,
             w4,
             w5,
-            p1: 'U',
-            p2: 'U',
-            p3: 'U',
+            p1: defines::UNKNOWN,
+            p2: defines::UNKNOWN,
+            p3: defines::UNKNOWN,
         }
     }
 }

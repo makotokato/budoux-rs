@@ -20,6 +20,7 @@
 
 extern crate alloc;
 
+mod defines;
 mod iter;
 mod unicode_block;
 mod feature;
