@@ -21,9 +21,7 @@
 extern crate alloc;
 
 mod iter;
-mod parser;
 mod unicode_block;
 mod feature;
 
-pub use crate::parser::Parser;
 pub use crate::iter::{BudoxSegmenter, BudoxSegmenterIterator};
