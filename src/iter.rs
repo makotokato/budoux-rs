@@ -79,7 +79,7 @@ impl<'a> Iterator for BudoxSegmenterIterator<'a> {
             };
             p3 = p;
             // w3 was current character
-            self.utf8_offset += self.w3.len_utf8();
+            self.utf8_offset += w3.len_utf8();
 
             if score > self.thres {
                 // break opportunity
