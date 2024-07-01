@@ -11,7 +11,7 @@ mod bench {
 
     #[bench]
     fn jp_iter(b: &mut Bencher) {
-        const MODELS: &[u8; 10213] = include_bytes!("../models/ja-knbc.json");
+        const MODELS: &[u8; 17432] = include_bytes!("../models/ja.json");
         let parsed: serde_json::Value = serde_json::from_slice(MODELS).unwrap();
         let model: serde_json::Map<String, serde_json::Value> = parsed.as_object().unwrap().clone();
 
